@@ -1,0 +1,63 @@
+#include<iostream>
+#include<algorithm>
+#include<vector>
+
+using namespace std;
+
+struct Process {
+    int processID;
+    int burstTime;
+};
+
+bool compare(Process p1, Process p2) {
+    return p1.burstTime < p2.burstTime;
+}
+
+void findWaitingTime(vector<Process>& processes, vector<int>& waitingTime) {
+    waitingTime[0] = 0;
+    for (int i = 1; i < processes.size(); ++i) {
+        waitingTime[i] = waitingTime[i - 1] + processes[i - 1].burstTime;
+    }
+}
+
+void findTurnAroundTime(vector<Process>& processes, vector<int>& waitingTime, vector<int>& turnAroundTime) {
+    for (int i = 0; i < processes.size(); ++i) {
+        turnAroundTime[i] = waitingTime[i] + processes[i].burstTime;
+    }
+}
+
+void findAverageTime(vector<Process>& processes) {
+    vector<int> waitingTime(processes.size(), 0);
+    vector<int> turnAroundTime(processes.size(), 0);
+
+    sort(processes.begin(), processes.end(), compare);
+    findWaitingTime(processes, waitingTime);
+    findTurnAroundTime(processes, waitingTime, turnAroundTime);
+
+    float totalWaitingTime = 0, totalTurnAroundTime = 0;
+    for (int i = 0; i < processes.size(); ++i) {
+        totalWaitingTime += waitingTime[i];
+        totalTurnAroundTime += turnAroundTime[i];
+    }
+
+    float avgWaitingTime = totalWaitingTime / processes.size();
+    float avgTurnAroundTime = totalTurnAroundTime / processes.size();
+
+    cout << "Process\tBurst Time\tWaiting Time\tTurnaround Time\n";
+    for (int i = 0; i < processes.size(); ++i) {
+        cout << processes[i].processID << "\t\t"
+             << processes[i].burstTime << "\t\t"
+             << waitingTime[i] << "\t\t"
+             << turnAroundTime[i] << endl;
+    }
+
+    cout << "Average Waiting Time: " << avgWaitingTime << endl;
+    cout << "Average Turnaround Time: " << avgTurnAroundTime << endl;
+}
+
+int main() {
+    vector<Process> processes = {{1, 6}, {2, 8}, {3, 7}, {4, 3}};
+    findAverageTime(processes);
+    return 0;
+}
+
